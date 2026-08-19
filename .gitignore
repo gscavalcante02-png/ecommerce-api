@@ -1,0 +1,21 @@
+# Ambiente virtual
+venv/
+.venv/
+env/
+
+# Variáveis de ambiente (segredo real)
+.env
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Cache do pytest
+.pytest_cache/
+
+# Configuração do VS Code (opcional, alguns preferem versionar)
+.vscode/
+
+# Banco de dados local, se usar SQLite em algum momento
+*.db
+*.sqlite3
