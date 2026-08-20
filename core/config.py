@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     DB_PORT: int = 5432
     DB_NAME: str = "ecommerce_db"
 
+    # JWT settings 
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
     # Property to assemble the connection URL automatically
     @property
     def database_url(self) -> str:
