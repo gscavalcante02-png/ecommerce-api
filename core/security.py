@@ -13,7 +13,7 @@ from core.config import settings
 # Sets up the Bcrypt algorithm for password encryption
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def hashpassword_(password: str) -> str:
+def hash_password(password: str) -> str:
     """Takes a plain-text password and returns its hashed version."""
     return pwd_context.hash(password)
 
