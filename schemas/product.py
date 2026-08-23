@@ -15,7 +15,7 @@ class ProductCreate(BaseModel):
     name: str
     price: float
     stock: int
-    categorys_id: List[int]
+    category_ids: List[int]
 
 
 class ProductResponse(BaseModel):
