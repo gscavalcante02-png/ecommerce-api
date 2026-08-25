@@ -34,5 +34,5 @@ class ProductResponse(BaseModel):
 
 class ProductUpdate(BaseModel):
     name: str | None = None
-    price: int | None = None
+    price: float | None = None
     stock: int | None = None

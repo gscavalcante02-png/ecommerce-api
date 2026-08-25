@@ -48,26 +48,27 @@ def get_all_products(session: Session, skip: int = 0, limit: int = 10) -> list[P
 
 
 def get_products_by_category(
-    session: Session, category_name: str, skip: int = 0, limit: int = 10
+    session: Session, category_id: int, skip: int = 0, limit: int = 10
 ) -> list[Product]:
     """
-    Retrieve a paginated list of products belonging to a given category name.
+    Retrieve a paginated list of products belonging to a given category ID.
     """
     statement = (
         select(Product)
         .join(ProductCategory)
         .join(Category)
-        .where(Category.name == category_name)
+        .where(Category.id == category_id)
         .offset(skip)
         .limit(limit)
     )
     return list(session.exec(statement).all())
 
 
-def update_product(session: Session, db_product: Product, product_data: ProductUpdate):
+def update_product(session: Session, product_id: int, product_data: ProductUpdate) -> Product:
     """
     Update only the fields provided in product_data, leaving the rest unchanged.
     """
+    db_product = session.get(Product, product_id)
     update_data = product_data.model_dump(exclude_unset=True)
 
     for key, value in update_data.items():
