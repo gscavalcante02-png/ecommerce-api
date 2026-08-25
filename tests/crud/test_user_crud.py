@@ -1,17 +1,19 @@
-from models.user import User
-from crud.user_crud import (create_user, 
-    get_user_by_email, 
+from crud.user_crud import (
+    create_user,
+    delete_user,
+    get_user_by_email,
     get_user_by_id,
     update_user,
-    delete_user
 )
+from models.user import User
+
 
 def test_create_and_get_user(session):
 
     new_user = User(
         name="Teste Silva",
         email="teste@email.com",
-        hashed_password="senha_criptografada_mock"
+        hashed_password="senha_criptografada_mock",
     )
 
     created = create_user(session, new_user)
@@ -42,4 +44,4 @@ def test_delete_user(session):
 
     delete_user(session, db_user)
 
-    assert  get_user_by_id(session, db_user.id) is None
+    assert get_user_by_id(session, db_user.id) is None

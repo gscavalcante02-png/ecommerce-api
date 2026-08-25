@@ -1,8 +1,9 @@
-from typing import List, Optional
+
 from sqlmodel import Session, select
 
 from models.product import Category
 from schemas.category import CategoryCreate
+
 
 def create_category(session: Session, category: CategoryCreate):
     """
@@ -15,14 +16,14 @@ def create_category(session: Session, category: CategoryCreate):
     return new_category
 
 
-def get_category(session: Session, category_id: int) -> Optional[Category]:
+def get_category(session: Session, category_id: int) -> Category | None:
     """
     Retrieve a single category by its id, or None if it doesn't exist.
     """
     return session.get(Category, category_id)
 
 
-def get_categories(session: Session, skip: int = 0, limit: int = 10 ) -> List[Category]:
+def get_categories(session: Session, skip: int = 0, limit: int = 10) -> list[Category]:
     """
     Retrieve a paginated list of categories.
     """

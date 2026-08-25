@@ -1,10 +1,13 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
+
 
 class UserCreate(BaseModel):
     """Data required to register a new user."""
+
     name: str
     email: EmailStr
     password: str
+
 
 class UserResponse(BaseModel):
     """Public-facing user data returned by the API."""

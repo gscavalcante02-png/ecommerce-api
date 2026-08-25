@@ -1,20 +1,16 @@
-from faker import Faker 
+from faker import Faker
 
-from models.product import Category
+from crud.category_crud import create_category, get_categories, get_category
 from schemas.category import CategoryCreate
-from crud.category_crud import (create_category,
-    get_category,
-    get_categories
-)
 
 fake = Faker()
 
-def test_create_category(session): 
+
+def test_create_category(session):
     fake_name = fake.word()
     category_data = CategoryCreate(name=fake_name)
 
     created_category = create_category(session, category_data)
-
 
     assert created_category.id is not None
     assert created_category.name == fake_name

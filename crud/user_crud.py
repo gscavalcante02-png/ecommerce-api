@@ -1,13 +1,12 @@
-from typing import List, Optional
+
 from sqlmodel import Session, select
 
 from models.user import User
-from core.security import hash_password
 
 
 def create_user(session: Session, user: User) -> User:
     """
-    Create and save a new user in the database. 
+    Create and save a new user in the database.
     """
     session.add(user)
     session.commit()
@@ -15,14 +14,14 @@ def create_user(session: Session, user: User) -> User:
     return user
 
 
-def get_user_by_id(session: Session, user_id: int) -> Optional[User]:
+def get_user_by_id(session: Session, user_id: int) -> User | None:
     """
     Retrieve a single user by their unique ID.
     """
     return session.get(User, user_id)
 
 
-def get_user_by_email(session: Session, email: str) -> Optional[User]:
+def get_user_by_email(session: Session, email: str) -> User | None:
     """
     Retrieve a single user by their email address.
     """
@@ -31,7 +30,7 @@ def get_user_by_email(session: Session, email: str) -> Optional[User]:
     return session.exec(statement).first()
 
 
-def get_all_users(session: Session, skip: int = 0, limit: int = 100) -> List[User]:
+def get_all_users(session: Session, skip: int = 0, limit: int = 100) -> list[User]:
     """
     Retrieve a list of users with pagination support.
     """
@@ -39,7 +38,7 @@ def get_all_users(session: Session, skip: int = 0, limit: int = 100) -> List[Use
     return list(session.exec(statement).all())
 
 
-def update_user(session: Session, db_user: User, user_data: dict) -> Optional[User]:
+def update_user(session: Session, db_user: User, user_data: dict) -> User | None:
     """
     Fetches the user by ID and updates its attributes if found.
     """
@@ -58,3 +57,4 @@ def delete_user(session: Session, db_user: User) -> bool:
     """
     session.delete(db_user)
     session.commit()
+    return True
