@@ -1,3 +1,5 @@
+from faker import Faker
+
 from crud.user_crud import (
     create_user,
     delete_user,
@@ -6,41 +8,56 @@ from crud.user_crud import (
     update_user,
 )
 from models.user import User
+from schemas.user import UserCreate
 
+
+fake = Faker()
 
 def test_create_and_get_user(session):
+    fake_name = fake.name()
+    fake_email = fake.email()
+    fake_password = fake.password()
 
-    new_user = User(
-        name="Teste Silva",
-        email="teste@email.com",
-        hashed_password="senha_criptografada_mock",
+    user_data = UserCreate(
+        name=fake_name,
+        email=fake_email,
+        password=fake_password,
     )
 
-    created = create_user(session, new_user)
+    created = create_user(session, user_data)
 
     assert created.id is not None
-    assert created.email == "teste@email.com"
+    assert created.email == fake_email
 
-    found_by_email = get_user_by_email(session, "teste@email.com")
+    found_by_email = get_user_by_email(session, fake_email)
     assert found_by_email is not None
     assert found_by_email.id == created.id
 
 
 def test_update_user(session):
 
-    user = User(name="Nome Antigo", email="update@email.com", hashed_password="123")
-    db_user = create_user(session, user)
+    user_data = UserCreate(
+        name=fake.name(),
+        email=fake.email(),
+        password=fake.password(),
+    )
+    db_user = create_user(session, user_data)
 
-    update_data = {"name": "Nome Novo"}
+    new_name = fake.name()
+    update_data = {"name": new_name}
     updated_user = update_user(session, db_user, update_data)
 
-    assert updated_user.name == "Nome Novo"
+    assert updated_user.name == new_name
 
 
 def test_delete_user(session):
 
-    user = User(name="Para Deletar", email="delete@email.com", hashed_password="123")
-    db_user = create_user(session, user)
+    user_data = UserCreate(
+        name=fake.name(),
+        email=fake.email(),
+        password=fake.password(),
+    )
+    db_user = create_user(session, user_data)
 
     delete_user(session, db_user)
 

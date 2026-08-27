@@ -1,17 +1,28 @@
 
 from sqlmodel import Session, select
 
+from schemas.user import UserCreate
 from models.user import User
 
+from core.security import hash_password
 
-def create_user(session: Session, user: User) -> User:
+
+def create_user(session: Session, user_data: UserCreate) -> User:
     """
-    Create and save a new user in the database.
+    Create a new user, hashing the raw password before persisting it.
     """
-    session.add(user)
+    user_dict = user_data.model_dump()
+
+    raw_password = user_dict.pop("password")
+    user_dict["hashed_password"] = hash_password(raw_password)
+
+    db_user = User(**user_dict)
+    
+    session.add(db_user)
     session.commit()
-    session.refresh(user)
-    return user
+    session.refresh(db_user)
+    
+    return db_user
 
 
 def get_user_by_id(session: Session, user_id: int) -> User | None:
