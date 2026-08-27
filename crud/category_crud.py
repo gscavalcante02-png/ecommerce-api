@@ -29,3 +29,19 @@ def get_categories(session: Session, skip: int = 0, limit: int = 10) -> list[Cat
     """
     statement = select(Category).offset(skip).limit(limit)
     return list(session.exec(statement).all())
+
+
+def get_category_by_name(session: Session, name: str) -> Category:
+    """
+    Retrieve a single category by its name.
+
+    Raises ValueError if no category with the given name exists.
+    """
+    category = session.exec(
+        select(Category).where(Category.name == name)
+    ).first()
+
+    if category is None:
+        raise ValueError(f"Category '{name}' not found.")
+
+    return category
