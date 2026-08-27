@@ -81,15 +81,27 @@ def update_product(session: Session, product_id: int, product_data: ProductUpdat
 
 
 def deduct_stock(session: Session, product_id: int, quantity: int) -> bool:
+    """
+    Deduct stock and commit immediately. Use this when calling standalone
+    (e.g. from a route). For use within a larger transaction, see
+    _deduct_stock_no_commit.
+    """
+    success = _deduct_stock_no_commit(session, product_id, quantity)
+    session.commit()
+    return success
+
+
+def _deduct_stock_no_commit(session: Session, product_id: int, quantity: int) -> bool:
+    """
+    Deduct stock without committing. Used internally by create_order,
+    so the caller controls the transaction boundary.
+    """
     statement = (
         update(Product)
         .where(Product.id == product_id, Product.stock >= quantity)
         .values(stock=Product.stock - quantity)
     )
-
     result = session.exec(statement)
-    session.commit()
-
     return result.rowcount > 0
 
 
