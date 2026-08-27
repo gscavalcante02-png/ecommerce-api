@@ -1,6 +1,8 @@
+import pytest
+
 from faker import Faker
 
-from crud.category_crud import create_category, get_categories, get_category
+from crud.category_crud import create_category, get_categories, get_category, get_category_by_name
 from schemas.category import CategoryCreate
 
 fake = Faker()
@@ -39,3 +41,22 @@ def test_get_categories(session):
 
     assert len(first_page) == 3
     assert len(second_page) == 2
+
+
+def test_get_category_by_name_sucsess(session):
+    category_data = CategoryCreate(name=fake.word())
+    created_category = create_category(session, category_data)
+
+    found_category = get_category_by_name(session, category_data.name)    
+
+    assert found_category.id == created_category.id
+    assert found_category.name == created_category.name
+
+
+def test_get_category_by_name_not_found(session):
+    non_existent_name = fake.word()
+
+    with pytest.raises(ValueError) as exc_info:
+        get_category_by_name(session, non_existent_name)
+
+    assert f"Category '{non_existent_name}' not found." in str(exc_info.value)
