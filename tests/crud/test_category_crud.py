@@ -2,7 +2,12 @@ import pytest
 
 from faker import Faker
 
-from crud.category_crud import create_category, get_categories, get_category, get_category_by_name
+from crud.category_crud import (
+    create_category,
+    get_categories, 
+    get_category, 
+    get_category_by_name
+)
 from schemas.category import CategoryCreate
 
 fake = Faker()
