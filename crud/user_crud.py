@@ -54,7 +54,8 @@ def update_user(session: Session, db_user: User, user_data: dict) -> User | None
     Fetches the user by ID and updates its attributes if found.
     """
     for key, value in user_data.items():
-        setattr(db_user, key, value)
+        if value is not None:
+            setattr(db_user, key, value)
 
     session.add(db_user)
     session.commit()

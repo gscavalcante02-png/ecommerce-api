@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
-
+from models.user import Role
 
 class UserCreate(BaseModel):
     """Data required to register a new user."""
@@ -7,6 +7,7 @@ class UserCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
+    role: Role = Role.user
 
 
 class UserResponse(BaseModel):
@@ -18,3 +19,11 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     role: str
+
+
+class UserUpdate(BaseModel):
+    """"""
+    name: str | None = None
+    email: EmailStr | None = None
+    password: str | None = None
+    role: Role | None = None

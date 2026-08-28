@@ -7,11 +7,54 @@ from crud.user_crud import (
     get_user_by_id,
     update_user,
 )
-from models.user import User
+from models.user import Role, User
 from schemas.user import UserCreate
 
 
 fake = Faker()
+
+def test_create_user_default_role(session):
+    user_data = UserCreate(
+        name=fake.name(),
+        email=fake.email(),
+        password=fake.password(),
+    )
+    created = create_user(session, user_data)
+
+    assert created.id is not None
+    assert created.role == Role.user
+
+
+def test_create_admin_user(session):
+    user_data = UserCreate(
+        name=fake.name(),
+        email=fake.email(),
+        password=fake.password(),
+        role=Role.admin,
+    )
+    created = create_user(session, user_data)
+
+    assert created.id is not None
+    assert created.role == Role.admin
+
+
+def test_update_user_role(session):
+    user_data = UserCreate(
+        name=fake.name(),
+        email=fake.email(),
+        password=fake.password(),
+    )
+    db_user = create_user(session, user_data)
+    assert db_user.role == Role.user
+
+    update_data = {"role": Role.admin}
+    updated_user = update_user(session, db_user, update_data)
+
+    assert updated_user.role == Role.admin
+
+    user_in_db = get_user_by_id(session, db_user.id)
+    assert user_in_db.role == Role.admin
+
 
 def test_create_and_get_user(session):
     fake_name = fake.name()
