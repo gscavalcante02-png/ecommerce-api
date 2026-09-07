@@ -70,6 +70,12 @@ def update_user_by_id(
 @router.get("/{user_id}", response_model=UserResponse, dependencies=[Depends(require_admin)])
 def get_user(user_id: int, session: Session = Depends(get_session)):
     """
-    
+    Retrieve a specific user's details by their ID. Requires Admin privileges.
     """
-    return get_user_by_id(session, user_id)
+    db_user = get_user_by_id(session, user_id)
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found."
+        )
+    return db_user
