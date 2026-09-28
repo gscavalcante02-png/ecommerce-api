@@ -69,6 +69,10 @@ def update_product(session: Session, product_id: int, product_data: ProductUpdat
     Update only the fields provided in product_data, leaving the rest unchanged.
     """
     db_product = session.get(Product, product_id)
+
+    if db_product is None: 
+        raise ValueError(f"Product {product_id} not found.")
+    
     update_data = product_data.model_dump(exclude_unset=True)
 
     for key, value in update_data.items():
@@ -105,10 +109,17 @@ def _deduct_stock_no_commit(session: Session, product_id: int, quantity: int) ->
     return result.rowcount > 0
 
 
-def delete_product(session: Session, db_product: Product) -> bool:
+def delete_product(session: Session, product_id: int) -> bool:
     """
-    Delete the given product from the database.
+    Delete a product by its id.
+
+    Raises ValueError if the product does not exist.
     """
+    db_product = session.get(Product, product_id)
+
+    if db_product is None: 
+        raise ValueError(f"Product {product_id} not found.")
+    
     session.delete(db_product)
     session.commit()
     return True
