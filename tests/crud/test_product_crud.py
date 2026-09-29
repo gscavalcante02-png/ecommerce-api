@@ -133,7 +133,7 @@ def test_delete_product(session):
 
     created_product = create_product(session, product_data)
 
-    result = delete_product(session, created_product)
+    result = delete_product(session, created_product.id)
 
     assert result is True
     deleted_product = get_product(session, created_product.id)
