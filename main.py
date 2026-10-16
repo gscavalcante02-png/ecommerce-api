@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from routers import user_routes, auth_routes 
+from routers import user_routes, auth_routes, category_routes
 from database.connection import init_db
 
 
@@ -19,6 +19,7 @@ app = FastAPI(title="E-commerce API", lifespan=lifespan)
 
 app.include_router(user_routes.router)
 app.include_router(auth_routes.router)
+app.include_router(category_routes.router)
 
 @app.get("/")
 def read_root():
