@@ -75,3 +75,38 @@ def test_category_by_id_not_found(client):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json()["detail"] == "Category not found."
+
+
+def test_list_categories_success(client, session):
+    """Without filters, all created categories are returned."""
+    names = [fake.unique.word() for _ in range(3)]
+    for name in names:
+        create_category(session, CategoryCreate(name=name))
+
+    response = client.get("/categories/")
+
+    assert response.status_code == status.HTTP_200_OK
+    returned_names = {item["name"] for item in response.json()}
+    assert returned_names == set(names)
+
+
+def test_list_categories_filter_by_name(client, session):
+    """Filtering by name returns only the matching category as a single-item list."""
+    target = create_category(session, CategoryCreate(name=fake.unique.word()))
+    create_category(session, CategoryCreate(name=fake.unique.word()))
+
+    response = client.get("/categories/", params={"name": target.name})
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["id"] == target.id
+    assert data[0]["name"] == target.name
+
+
+def test_list_categories_filter_by_name_not_found(client):
+    """Filtering by a name that does not exist returns 404."""
+    response = client.get("/categories/", params={"name": "category-that-does-not-exist"})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert "detail" in response.json()
