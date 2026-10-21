@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
 from database.connection import get_session
-from crud.user_crud import create_user, get_user_by_id, get_user_by_email, get_all_users, get_user_by_id , update_user
+from crud.user_crud import create_user, get_user_by_email, get_all_users, get_user_by_id , update_user
 from dependencies import get_current_user, require_admin
-from models.user import User
-from schemas.user import UserCreate, UserResponse, UserUpdate
+from models.user import Role, User
+from schemas.user import UserCreate, UserResponse, UserUpdate, UserRegister
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -13,9 +13,10 @@ router = APIRouter(prefix="/users", tags=["Users"])
 #  --- Public / Common User Endpoints --- 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register_user(user_data: UserCreate, session: Session = Depends(get_session)):
+def register_user(user_data: UserRegister, session: Session = Depends(get_session)):
     """
     Public endpoint to register a new user in the system.
+    The role is always decided by the server, never by the client.
     """
     existing_user = get_user_by_email(session, user_data.email)
     if existing_user:
@@ -23,8 +24,10 @@ def register_user(user_data: UserCreate, session: Session = Depends(get_session)
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered.",
         )
-    
-    return create_user(session, user_data)
+
+    # Server-side conversion: the role is forced to "user".
+    user_create = UserCreate(**user_data.model_dump(), role=Role.user)
+    return create_user(session, user_create)
 
 
 @router.get("/me", response_model=UserResponse)

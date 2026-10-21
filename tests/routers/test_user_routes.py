@@ -186,3 +186,18 @@ def test_update_user_by_id_as_admin(client, session):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["name"] == new_name
+
+
+def test_register_ignores_role_field(client):
+    """A visitor must not be able to register as admin."""
+    payload = {
+        "name": fake.name(),
+        "email": fake.email(),
+        "password": fake.password(),
+        "role": "admin",
+    }
+
+    response = client.post("/users/", json=payload)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()["role"] == "user"

@@ -27,3 +27,11 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     password: str | None = None
     role: Role | None = None
+
+
+class UserRegister(BaseModel):
+    """Data a visitor may send to register publicly. Never includes role."""
+
+    name: str
+    email: EmailStr
+    password: str
