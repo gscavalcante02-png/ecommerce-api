@@ -1,11 +1,13 @@
 from faker import Faker
 from fastapi import status
 
+from crud.order_crud import create_order
 from crud.user_crud import create_user
 from crud.category_crud import create_category
 from crud.product_crud import create_product
 from models.user import Role
 from models.order import OrderStatus
+from schemas.order import OrderCreate, OrderItemCreate
 from schemas.user import UserCreate
 from schemas.category import CategoryCreate
 from schemas.product import ProductCreate
@@ -145,3 +147,97 @@ def test_update_order_status_as_admin(client, session):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["status"] == "completed"
+
+
+def test_get_order_by_id_success(client, session):
+    """A user can retrieve their own order by ID."""
+    password = fake.password()
+    user = create_user(
+        session,
+        UserCreate(name=fake.name(), email=fake.email(), password=password, role=Role.user),
+    )
+    category = create_category(session, CategoryCreate(name=fake.word()))
+    product = create_product(
+        session,
+        ProductCreate(name=fake.word(), price=20.0, stock=10, category_ids=[category.id]),
+    )
+
+    # Create the order directly through the CRUD layer
+    order = create_order(
+        session,
+        OrderCreate(items=[OrderItemCreate(product_id=product.id, quantity=2)]),
+        user_id=user.id,
+    )
+
+    login_res = client.post(
+        "/auth/login",
+        data={"username": user.email, "password": password},
+    )
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.get(f"/orders/{order.id}", headers=headers)
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["id"] == order.id
+    assert data["status"] == OrderStatus.PENDING
+    assert len(data["items"]) == 1
+    assert data["items"][0]["product_id"] == product.id
+    assert data["items"][0]["quantity"] == 2
+
+
+def test_get_order_forbidden_for_other_user(client, session):
+    """A user must not be able to view another user's order."""
+    owner = create_user(
+        session,
+        UserCreate(name=fake.name(), email=fake.email(), password=fake.password(), role=Role.user),
+    )
+    other_password = fake.password()
+    other_user = create_user(
+        session,
+        UserCreate(name=fake.name(), email=fake.email(), password=other_password, role=Role.user),
+    )
+    category = create_category(session, CategoryCreate(name=fake.word()))
+    product = create_product(
+        session,
+        ProductCreate(name=fake.word(), price=20.0, stock=10, category_ids=[category.id]),
+    )
+    order = create_order(
+        session,
+        OrderCreate(items=[OrderItemCreate(product_id=product.id, quantity=1)]),
+        user_id=owner.id,
+    )
+
+    login_res = client.post(
+        "/auth/login",
+        data={"username": other_user.email, "password": other_password},
+    )
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.get(f"/orders/{order.id}", headers=headers)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json()["detail"] == "Not authorized to view this order."
+
+
+def test_get_order_not_found(client, session):
+    """Requesting an order that does not exist returns 404."""
+    password = fake.password()
+    user = create_user(
+        session,
+        UserCreate(name=fake.name(), email=fake.email(), password=password, role=Role.user),
+    )
+
+    login_res = client.post(
+        "/auth/login",
+        data={"username": user.email, "password": password},
+    )
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.get("/orders/999", headers=headers)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json()["detail"] == "Order not found."
