@@ -1,0 +1,20 @@
+# Web framework and server
+fastapi==0.141.1
+uvicorn==0.52.1
+
+# Database (the URL uses postgresql+psycopg, so psycopg 3)
+sqlmodel==0.0.39
+psycopg[binary]==3.3.4
+
+# Validation and settings
+pydantic==2.13.4
+pydantic-settings==2.15.0
+email-validator==2.3.0
+
+# Auth (bcrypt must stay on 4.0.1 to work with passlib 1.7.4)
+passlib==1.7.4
+bcrypt==4.0.1
+python-jose==3.5.0
+
+# Form login (/auth/login)
+python-multipart==0.0.32
