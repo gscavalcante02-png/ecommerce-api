@@ -1,0 +1,38 @@
+name: Tests
+
+# Run on every push to main and on every pull request
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # Fake key used only in CI. The tests use SQLite in memory, but
+      # Settings() needs SECRET_KEY as soon as the app is imported.
+      SECRET_KEY: ci-only-fake-key-not-a-real-secret
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v6
+
+      - name: Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: python -m pytest
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v6
+
+      - name: Build the Docker image
+        run: docker build -t ecommerce-api .
