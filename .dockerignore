@@ -13,6 +13,7 @@ __pycache__/
 .venv-test/
 venv/
 .pytest_cache/
+.ruff_cache/
 
 # Not needed to run the API
 tests/
